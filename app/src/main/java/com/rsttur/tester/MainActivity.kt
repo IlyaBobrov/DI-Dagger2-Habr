@@ -3,6 +3,7 @@ package com.rsttur.tester
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.ProgressDialog
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -12,9 +13,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.rsttur.tester.adapter.RandomUserAdapter
+import com.rsttur.tester.component.RandomUserComponent
 import com.rsttur.tester.interfaces.RandomUsersApi
 import com.rsttur.tester.model.Example
 import com.rsttur.tester.model.Result
+import com.rsttur.tester.module.ContextModule
 import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
 import okhttp3.Cache
@@ -28,21 +31,46 @@ import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import java.io.File
 
+
 class MainActivity : AppCompatActivity() {
 
     val TAG = "TAG"
 
+    lateinit var randomUsersApi: RandomUsersApi
+    lateinit var picasso: Picasso
+    lateinit var context: Context
+
     lateinit var retrofit: Retrofit
     lateinit var recyclerView: RecyclerView
     lateinit var mAdapter: RandomUserAdapter
-    lateinit var picasso: Picasso
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         initViews()
+        context = this@MainActivity
 
+        beforeDagger()
+
+//        afterDagger()
+
+        populateUsers()
+    }
+
+    //todo: не генерирует dagger file
+    private fun afterDagger() {
+       /* val daggerRandomUserComponent: RandomUserComponent = DaggerRandomUserComponent.builder()
+            .contextModule(ContextModule(this))
+            .build()
+
+        picasso = daggerRandomUserComponent.picasso
+
+        randomUsersApi = daggerRandomUserComponent.getRandomUserService()*/
+    }
+
+
+    private fun beforeDagger(){
         val gsonBuilder = GsonBuilder()
         val gson: Gson = gsonBuilder.create()
 
@@ -76,8 +104,6 @@ class MainActivity : AppCompatActivity() {
             .baseUrl("https://randomuser.me")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
-
-        populateUsers()
     }
 
     private fun initViews() {
