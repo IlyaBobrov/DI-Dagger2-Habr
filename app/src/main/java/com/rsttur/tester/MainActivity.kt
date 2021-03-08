@@ -15,6 +15,9 @@ import com.rsttur.tester.adapter.RandomUserAdapter
 import com.rsttur.tester.interfaces.RandomUsersApi
 import com.rsttur.tester.model.Example
 import com.rsttur.tester.model.Result
+import com.squareup.picasso.OkHttp3Downloader
+import com.squareup.picasso.Picasso
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -23,6 +26,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var retrofit: Retrofit
     lateinit var recyclerView: RecyclerView
     lateinit var mAdapter: RandomUserAdapter
+    lateinit var picasso: Picasso
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,10 +48,13 @@ class MainActivity : AppCompatActivity() {
 
         Timber.plant(Timber.DebugTree())
 
+        val cacheFile = File(this.cacheDir, "HttpCache")
+        val cache = Cache(cacheFile, 10 * 1000 * 1000);
+
         val httpLoginInterceptor = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
             @SuppressLint("LogNotTimber")
             override fun log(message: String) {
-//                Timber.i(message)
+                Timber.i(message)
                 Log.e(TAG, "log: $message")
             }
         })
@@ -55,9 +63,13 @@ class MainActivity : AppCompatActivity() {
 
         val okHttpClient = OkHttpClient()
             .newBuilder()
+            .cache(cache)
             .addInterceptor(httpLoginInterceptor)
             .build()
-        Log.d(TAG, "onCreate: http build true")
+
+        val okHttpDownloader = OkHttp3Downloader(okHttpClient)
+
+        picasso = Picasso.Builder(this@MainActivity).downloader(okHttpDownloader).build()
 
         retrofit = Retrofit.Builder()
             .client(okHttpClient)
@@ -65,26 +77,25 @@ class MainActivity : AppCompatActivity() {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 
-        Log.d(TAG, "onCreate: retrofit build true")
         populateUsers()
     }
 
     private fun initViews() {
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.setLayoutManager(LinearLayoutManager(this))
-        Log.d(TAG, "initViews: true")
     }
 
     private fun populateUsers() {
         val dialog: Dialog
         dialog = ProgressDialog.show(this, "", "Loading...", true)
+
         val randomUsersCall: Call<Example> = getRandomUserService().getRandomUsers(10)
+
         randomUsersCall.enqueue(object : Callback<Example> {
             override fun onResponse(call: Call<Example>, response: Response<Example>) {
                 if (response.isSuccessful()) {
                     Log.d(TAG, "onResponse: success")
-                    Log.d(TAG, "onResponse: ${response.body()?.results}")
-                    mAdapter = RandomUserAdapter()
+                    mAdapter = RandomUserAdapter(picasso)
                     mAdapter.setItems(response.body()?.results as List<Result>)
                     recyclerView.setAdapter(mAdapter)
                     dialog.dismiss()

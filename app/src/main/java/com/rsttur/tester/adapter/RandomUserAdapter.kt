@@ -12,7 +12,7 @@ import com.rsttur.tester.model.Result
 import com.squareup.picasso.Picasso
 
 
-class RandomUserAdapter : RecyclerView.Adapter<RandomUserAdapter.RandomUserViewHolder?>() {
+class RandomUserAdapter(val picasso: Picasso) : RecyclerView.Adapter<RandomUserAdapter.RandomUserViewHolder?>() {
 
     private var resultList: List<Result> = ArrayList()
 
@@ -28,7 +28,7 @@ class RandomUserAdapter : RecyclerView.Adapter<RandomUserAdapter.RandomUserViewH
         val result = resultList[position]
         holder.textView.text = result.name?.first
 
-        Picasso.get().load(result.picture?.large).into(holder.imageView)
+        picasso.load(result.picture?.large).into(holder.imageView)
     }
 
     override fun getItemCount(): Int = resultList.size
