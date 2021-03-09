@@ -8,6 +8,6 @@ import dagger.Component
 
 @Component(modules = [RandomUsersModule::class, PicassoModule::class])
 interface RandomUserComponent {
-    val getRandomUserService: RandomUsersApi
-    val picasso: Picasso
+    fun getRandomUserService() : RandomUsersApi
+    fun getPicasso() : Picasso
 }

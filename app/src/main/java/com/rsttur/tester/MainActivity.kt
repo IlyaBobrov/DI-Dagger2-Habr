@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.rsttur.tester.adapter.RandomUserAdapter
+import com.rsttur.tester.component.DaggerRandomUserComponent
 import com.rsttur.tester.component.RandomUserComponent
 import com.rsttur.tester.interfaces.RandomUsersApi
 import com.rsttur.tester.model.Example
@@ -51,22 +52,22 @@ class MainActivity : AppCompatActivity() {
         initViews()
         context = this@MainActivity
 
-        beforeDagger()
+//        beforeDagger()
 
-//        afterDagger()
+        afterDagger()
 
         populateUsers()
     }
 
-    //todo: не генерирует dagger file
     private fun afterDagger() {
-       /* val daggerRandomUserComponent: RandomUserComponent = DaggerRandomUserComponent.builder()
+
+        val daggerRandomUserComponent: RandomUserComponent = DaggerRandomUserComponent.builder()
             .contextModule(ContextModule(this))
             .build()
 
-        picasso = daggerRandomUserComponent.picasso
+        picasso = daggerRandomUserComponent.getPicasso()
 
-        randomUsersApi = daggerRandomUserComponent.getRandomUserService()*/
+        randomUsersApi = daggerRandomUserComponent.getRandomUserService()
     }
 
 
@@ -115,7 +116,11 @@ class MainActivity : AppCompatActivity() {
         val dialog: Dialog
         dialog = ProgressDialog.show(this, "", "Loading...", true)
 
-        val randomUsersCall: Call<Example> = getRandomUserService().getRandomUsers(10)
+        //before dagger
+        //val randomUsersCall: Call<Example> = getRandomUserService().getRandomUsers(10)
+
+        //after dagger
+        val randomUsersCall: Call<Example> = randomUsersApi.getRandomUsers(10)
 
         randomUsersCall.enqueue(object : Callback<Example> {
             override fun onResponse(call: Call<Example>, response: Response<Example>) {

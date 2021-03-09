@@ -39,7 +39,10 @@ class OkHttpClientModule {
                 Timber.i(message)
             }
         })
-        httpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
         return httpLoggingInterceptor
     }
+
+
+
 }

@@ -1,7 +1,9 @@
+//apply plugin:
 
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -56,6 +58,9 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.0'
     implementation 'org.apache.commons:commons-lang3:3.7'
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
+
+    kapt 'com.google.dagger:dagger-compiler:2.25.3'
+
     implementation 'com.google.dagger:dagger:2.25.3'
     implementation 'com.google.dagger:dagger-android:2.25.3'
     implementation 'com.google.dagger:dagger-android-support:2.25.3' // if you use the support libraries
