@@ -27,7 +27,6 @@ class OkHttpClientModule {
     fun cache(cacheFile: File): Cache = Cache(cacheFile, 10 * 1000 * 1000)
 
 
-
     @Provides
     @RandomUserApplicationScope
     fun cacheFile(@ApplicationContext context: Context): File {
@@ -46,7 +45,6 @@ class OkHttpClientModule {
         httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
         return httpLoggingInterceptor
     }
-
 
 
 }

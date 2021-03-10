@@ -12,7 +12,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.rsttur.tester.MainActivityFeature.DaggerMainActivityComponent
+import com.rsttur.tester.MainActivityFeature.MainActivityComponent
+import com.rsttur.tester.MainActivityFeature.MainActivityModule
 import com.rsttur.tester.adapter.RandomUserAdapter
+import com.rsttur.tester.application.RandomUserApplication
 import com.rsttur.tester.component.DaggerRandomUserComponent
 import com.rsttur.tester.component.RandomUserComponent
 import com.rsttur.tester.interfaces.RandomUsersApi
@@ -31,36 +35,41 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import java.io.File
+import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
 
     val TAG = "TAG"
 
+    @Inject
     lateinit var randomUsersApi: RandomUsersApi
-    lateinit var picasso: Picasso
-    lateinit var context: Context
+    @Inject
+    lateinit var mAdapter: RandomUserAdapter
 
+    lateinit var picasso: Picasso
     lateinit var retrofit: Retrofit
     lateinit var recyclerView: RecyclerView
-    lateinit var mAdapter: RandomUserAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         initViews()
-        context = this@MainActivity
-
 //        beforeDagger()
-
-        afterDagger()
-
+//        afterDagger()
+        afterActivityLevelComponent()
         populateUsers()
     }
 
-    private fun afterDagger() {
+    private fun afterActivityLevelComponent() {
+        val mainActivityComponent: MainActivityComponent = DaggerMainActivityComponent.builder()
+            .mainActivityModule(MainActivityModule(this))
+            .randomUserComponent(RandomUserApplication.get(this).randomUserApplicationComponent)
+            .build()
+        mainActivityComponent.injectMainActivity(this)
+    }
 
+    private fun afterDagger() {
         val daggerRandomUserComponent: RandomUserComponent = DaggerRandomUserComponent.builder()
             .contextModule(ContextModule(this))
             .build()
@@ -71,7 +80,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun beforeDagger(){
+    private fun beforeDagger() {
         val gsonBuilder = GsonBuilder()
         val gson: Gson = gsonBuilder.create()
 
@@ -118,15 +127,12 @@ class MainActivity : AppCompatActivity() {
 
         //before dagger
         //val randomUsersCall: Call<Example> = getRandomUserService().getRandomUsers(10)
-
-        //after dagger
         val randomUsersCall: Call<Example> = randomUsersApi.getRandomUsers(10)
 
         randomUsersCall.enqueue(object : Callback<Example> {
             override fun onResponse(call: Call<Example>, response: Response<Example>) {
                 if (response.isSuccessful()) {
-                    Log.d(TAG, "onResponse: success")
-                    mAdapter = RandomUserAdapter(picasso)
+//                    mAdapter = RandomUserAdapter(picasso)
                     mAdapter.setItems(response.body()?.results as List<Result>)
                     recyclerView.setAdapter(mAdapter)
                     dialog.dismiss()
@@ -140,11 +146,9 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "$t", Toast.LENGTH_LONG).show()
             }
         })
-        Log.d(TAG, "populateUsers: all true")
     }
 
     fun getRandomUserService(): RandomUsersApi {
-        Log.d(TAG, "getRandomUserService: true")
         return retrofit.create(RandomUsersApi::class.java)
     }
 
