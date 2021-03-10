@@ -1,6 +1,8 @@
 package com.rsttur.tester.module
 
 import android.content.Context
+import com.rsttur.tester.interfaces.ApplicationContext
+import com.rsttur.tester.interfaces.RandomUserApplicationScope
 import dagger.Module
 import dagger.Provides
 import okhttp3.Cache
@@ -25,8 +27,10 @@ class OkHttpClientModule {
     fun cache(cacheFile: File): Cache = Cache(cacheFile, 10 * 1000 * 1000)
 
 
+
     @Provides
-    fun cacheFile(context: Context): File {
+    @RandomUserApplicationScope
+    fun cacheFile(@ApplicationContext context: Context): File {
         val file = File(context.cacheDir, "HttpCache")
         file.mkdir()
         return file

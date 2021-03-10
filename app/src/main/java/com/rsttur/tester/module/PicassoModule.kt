@@ -1,6 +1,8 @@
 package com.rsttur.tester.module
 
 import android.content.Context
+import com.rsttur.tester.interfaces.ApplicationContext
+import com.rsttur.tester.interfaces.RandomUserApplicationScope
 import com.squareup.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
 import dagger.Module
@@ -11,7 +13,8 @@ import okhttp3.OkHttpClient
 class PicassoModule {
 
     @Provides
-    fun picasso(context: Context, okHttp3Downloader: OkHttp3Downloader): Picasso =
+    @RandomUserApplicationScope
+    fun picasso(@ApplicationContext context: Context, okHttp3Downloader: OkHttp3Downloader): Picasso =
         Picasso.Builder(context).downloader(okHttp3Downloader).build()
 
     @Provides

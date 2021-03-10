@@ -2,6 +2,7 @@ package com.rsttur.tester.module
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.rsttur.tester.interfaces.RandomUserApplicationScope
 import com.rsttur.tester.interfaces.RandomUsersApi
 import dagger.Module
 import dagger.Provides
@@ -16,7 +17,7 @@ class RandomUsersModule {
     fun randomUserApi(retrofit: Retrofit): RandomUsersApi =
         retrofit.create(RandomUsersApi::class.java)
 
-
+    @RandomUserApplicationScope
     @Provides
     fun retrofit(
         okHttpClient: OkHttpClient,
